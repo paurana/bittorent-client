@@ -1,9 +1,19 @@
 package bencode
 
 import (
+	"crypto/rand"
+	"fmt"
+	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/jackpal/bencode-go"
 )
+
+type bencodeResp struct {
+	Interval int    `bencode:"interval"`
+	Peers    string `bencode:"peers"`
+}
 
 func (tf *TorrentFile) BuildTrackerURL(peerID [20]byte, port uint16) (string, error) {
 	base, err := url.Parse(tf.Announce)
@@ -21,4 +31,24 @@ func (tf *TorrentFile) BuildTrackerURL(peerID [20]byte, port uint16) (string, er
 	}
 	base.RawQuery = queryParams.Encode()
 	return base.String(), nil
+}
+
+func ParseResp(tf TorrentFile) (bencodeResp, error) {
+	var peerID [20]byte
+	_, _ = rand.Read(peerID[:])
+	url, _ := tf.BuildTrackerURL(peerID, 6969)
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println("get request failed")
+		return bencodeResp{}, err
+	}
+	defer resp.Body.Close()
+
+	pb := bencodeResp{}
+	err = bencode.Unmarshal(resp.Body, &pb)
+	if err != nil {
+		fmt.Println("error in unmarshalling resp from tracker url")
+		return bencodeResp{}, err
+	}
+	return pb, nil
 }

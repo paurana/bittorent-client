@@ -1,14 +1,12 @@
 package main
 
 import (
-	"crypto/rand"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/tech-yush/bittorent-client/bencode"
+	"github.com/tech-yush/bittorent-client/peer"
 )
 
 func main() {
@@ -17,12 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var peerID [20]byte
-	_, _ = rand.Read(peerID[:])
-	fmt.Println(peerID)
-	url, _ := torrentfile.BuildTrackerURL(peerID, 6969)
-	resp, _ := http.Get(url)
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+	resp, _ := bencode.ParseResp(torrentfile)
+	peers, _ := peer.SeparatePeers([]byte(resp.Peers))
+	fmt.Println(peers)
 }
