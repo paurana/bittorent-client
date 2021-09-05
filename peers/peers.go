@@ -1,9 +1,10 @@
-package peer
+package peers
 
 import (
 	"encoding/binary"
 	"fmt"
 	"net"
+	"strconv"
 )
 
 type Peer struct {
@@ -25,4 +26,8 @@ func SeparatePeers(peersResp []byte) ([]Peer, error) {
 		peers[i].Port = binary.BigEndian.Uint16(peersResp[offset+4 : offset+6])
 	}
 	return peers, nil
+}
+
+func (p Peer) String() string {
+	return net.JoinHostPort(p.IP.String(), strconv.Itoa(int(p.Port)))
 }

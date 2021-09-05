@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/tech-yush/bittorent-client/bencode"
-	"github.com/tech-yush/bittorent-client/peer"
+	"github.com/tech-yush/bittorent-client/peers"
 )
 
 func main() {
@@ -16,6 +16,6 @@ func main() {
 		log.Fatal(err)
 	}
 	resp, _ := bencode.ParseResp(torrentfile)
-	peers, _ := peer.SeparatePeers([]byte(resp.Peers))
+	peers, _ := peers.SeparatePeers([]byte(resp.Peers))
 	fmt.Println(peers)
 }
