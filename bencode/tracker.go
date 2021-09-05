@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func (tf *TorrentFile) buildTrackerURL(peerID [20]byte, port uint16) (string, error) {
+func (tf *TorrentFile) BuildTrackerURL(peerID [20]byte, port uint16) (string, error) {
 	base, err := url.Parse(tf.Announce)
 	if err != nil {
 		return "", err
