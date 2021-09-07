@@ -89,7 +89,7 @@ func New(peer peers.Peer, peerID, infoHash [20]byte) (*TCP, error) {
 	}, nil
 }
 
-func (c *TCP) Read() (*message.Message, error) {
-	msg, err := message.Read(c.Conn)
+func (t *TCP) Read() (*message.Message, error) {
+	msg, err := message.Read(t.Conn)
 	return msg, err
 }
