@@ -93,3 +93,33 @@ func (t *TCP) Read() (*message.Message, error) {
 	msg, err := message.Read(t.Conn)
 	return msg, err
 }
+
+func (t *TCP) SendRequest(index, begin, length int) error {
+	req := message.FormatRequest(index, begin, length)
+	_, err := t.Conn.Write(req.Serialize())
+	return err
+}
+
+func (t *TCP) SendInterested() error {
+	msg := message.Message{ID: message.MsgInterested}
+	_, err := t.Conn.Write(msg.Serialize())
+	return err
+}
+
+func (t *TCP) SendNotInterested() error {
+	msg := message.Message{ID: message.MsgNotInterested}
+	_, err := t.Conn.Write(msg.Serialize())
+	return err
+}
+
+func (t *TCP) SendUnchoke() error {
+	msg := message.Message{ID: message.MsgUnchoke}
+	_, err := t.Conn.Write(msg.Serialize())
+	return err
+}
+
+func (t *TCP) SendHave(index int) error {
+	msg := message.FormatHave(index)
+	_, err := t.Conn.Write(msg.Serialize())
+	return err
+}
