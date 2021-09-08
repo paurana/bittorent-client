@@ -2,11 +2,14 @@ package bencode
 
 import (
 	"bytes"
+	"crypto/rand"
 	"crypto/sha1"
 	"fmt"
 	"os"
 
 	"github.com/jackpal/bencode-go"
+	"github.com/tech-yush/bittorent-client/peers"
+	"github.com/tech-yush/bittorent-client/queue"
 )
 
 //I will be using github.com/jackpal/bencode-go to parse the .torrent file
@@ -32,6 +35,46 @@ type TorrentFile struct {
 	PieceLength int
 	Length      int
 	Name        string
+}
+
+func (t *TorrentFile) DownloadToFile(path string) error {
+	var peerID [20]byte
+	_, err := rand.Read(peerID[:])
+	if err != nil {
+		return err
+	}
+
+	//The code differs from the actual repo because I've implemented SeperatePeers() in a diff way
+	resp, _ := ParseResp(*t)
+	peers, _ := peers.SeparatePeers([]byte(resp.Peers))
+	if err != nil {
+		return err
+	}
+
+	torrent := queue.Torrent{
+		Peers:       peers,
+		PeerID:      peerID,
+		InfoHash:    t.InfoHash,
+		PieceHashes: t.PieceHashes,
+		PieceLength: t.PieceLength,
+		Length:      t.Length,
+		Name:        t.Name,
+	}
+	buf, err := torrent.Download()
+	if err != nil {
+		return err
+	}
+
+	outFile, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer outFile.Close()
+	_, err = outFile.Write(buf)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func Open(path string) (TorrentFile, error) {

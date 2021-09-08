@@ -36,7 +36,8 @@ func (tf *TorrentFile) BuildTrackerURL(peerID [20]byte, port uint16) (string, er
 func ParseResp(tf TorrentFile) (bencodeResp, error) {
 	var peerID [20]byte
 	_, _ = rand.Read(peerID[:])
-	url, _ := tf.BuildTrackerURL(peerID, 6969)
+	//Ports reserved for BitTorrent are typically 6881-6889
+	url, _ := tf.BuildTrackerURL(peerID, 6889)
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("get request failed")
